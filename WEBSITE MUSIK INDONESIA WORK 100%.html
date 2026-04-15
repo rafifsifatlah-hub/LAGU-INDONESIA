@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nusantara Musik</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080810;--surface:#11111c;--card:#181826;--border:rgba(255,255,255,0.07);
+  --gold:#d4a843;--gold2:#f0c96a;--text:#edeae0;--muted:#6e6b62;
+  --green:#5cb87a;--red:#c96e6e;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(212,168,67,.07) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 60% at 85% 85%,rgba(92,184,122,.04) 0%,transparent 60%);
+  pointer-events:none;z-index:0}
+header{position:sticky;top:0;z-index:100;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(8,8,16,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--gold);letter-spacing:.05em}
+.logo em{color:var(--text);font-style:italic;font-weight:400}
+.hdr-right{font-size:.7rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+main{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:36px 20px 120px;
+  display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start}
+.player{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;
+  position:sticky;top:80px;box-shadow:0 20px 70px rgba(0,0,0,.55);transition:background .5s}
+.cover-wrap{width:100%;aspect-ratio:1;border-radius:14px;overflow:hidden;margin-bottom:22px;position:relative;background:#1a1428}
+.cover-wrap img{width:100%;height:100%;object-fit:cover;transition:opacity .4s}
+.cover-wrap .veil{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55) 0%,transparent 55%)}
+.disc{position:absolute;top:12px;right:12px;width:52px;height:52px;border-radius:50%;
+  border:1.5px solid rgba(212,168,67,.35);animation:spin 7s linear infinite;animation-play-state:paused}
+.disc::after{content:'';position:absolute;inset:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:var(--gold)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.playing .disc{animation-play-state:running}
+.meta{margin-bottom:18px}
+.meta-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.meta-artist{color:var(--gold);font-size:.85rem;font-weight:500;margin-bottom:8px}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;
+  background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.2);
+  color:var(--muted);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase}
+.prog-wrap{position:relative;height:4px;background:rgba(255,255,255,.08);border-radius:4px;cursor:pointer;margin-bottom:7px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;width:0%;transition:width .25s linear}
+.prog-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;
+  background:var(--gold2);left:0%;transition:left .25s linear;pointer-events:none;box-shadow:0 0 7px rgba(240,201,106,.7)}
+.time-row{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:18px}
+.controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.cbtn{background:none;border:none;cursor:pointer;color:var(--muted);padding:8px;border-radius:50%;
+  transition:color .2s,transform .15s;display:flex;align-items:center;justify-content:center}
+.cbtn:hover{color:var(--text);transform:scale(1.12)}
+.cbtn.on{color:var(--gold)}
+.pbtn{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:transform .2s,box-shadow .2s;box-shadow:0 8px 22px rgba(212,168,67,.35)}
+.pbtn:hover{transform:scale(1.09);box-shadow:0 12px 30px rgba(212,168,67,.5)}
+.pbtn svg{color:#080810}
+.vol-row{display:flex;align-items:center;gap:9px}
+.vol-row svg{color:var(--muted);flex-shrink:0}
+input[type=range]{-webkit-appearance:none;flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.1);cursor:pointer;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--gold)}
+.status{font-size:.72rem;color:var(--muted);text-align:center;margin-top:12px;min-height:16px;transition:color .3s}
+.status.err{color:var(--red)}.status.ok{color:var(--green)}
+.plist h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:4px}
+.plist .sub{color:var(--muted);font-size:.82rem;margin-bottom:20px}
+.song-list{display:flex;flex-direction:column;gap:8px}
+.sitem{display:flex;align-items:center;gap:12px;padding:12px 14px;
+  background:var(--card);border:1px solid var(--border);border-radius:13px;
+  cursor:pointer;transition:background .2s,border-color .2s,transform .15s}
+.sitem:hover{background:#1e1e2c;border-color:rgba(212,168,67,.2);transform:translateX(3px)}
+.sitem.active{background:linear-gradient(135deg,rgba(212,168,67,.13),rgba(92,184,122,.06));border-color:rgba(212,168,67,.35)}
+.snum{font-size:.75rem;color:var(--muted);width:20px;text-align:center;flex-shrink:0}
+.sitem.active .snum{color:var(--gold)}
+.sthumb{width:46px;height:46px;border-radius:9px;object-fit:cover;flex-shrink:0;background:#1a1428}
+.sinfo{flex:1;overflow:hidden}
+.stitle{font-weight:500;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.sitem.active .stitle{color:var(--gold2)}
+.sartist{font-size:.75rem;color:var(--muted)}
+.sdur{font-size:.73rem;color:var(--muted);flex-shrink:0}
+.eq{display:flex;align-items:flex-end;gap:2px;height:14px;flex-shrink:0}
+.eq-b{width:3px;border-radius:2px;background:var(--gold);animation:eqp .55s ease-in-out infinite alternate}
+.eq-b:nth-child(2){animation-delay:.15s}.eq-b:nth-child(3){animation-delay:.3s}
+@keyframes eqp{from{height:3px}to{height:13px}}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);
+  background:var(--card);border:1px solid var(--border);color:var(--text);
+  padding:10px 20px;border-radius:28px;font-size:.82rem;transition:transform .3s ease;
+  z-index:999;pointer-events:none;white-space:nowrap;backdrop-filter:blur(12px);
+  box-shadow:0 8px 28px rgba(0,0,0,.45)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:12px;
+  background:rgba(8,8,16,.92);backdrop-filter:blur(20px);border-top:1px solid var(--border);
+  font-size:.72rem;color:var(--muted);z-index:50}
+footer span{color:var(--gold)}
+@media(max-width:720px){
+  main{grid-template-columns:1fr;padding:20px 14px 110px}
+  .player{position:static}
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Nusantara <em>Musik</em></div>
+  <div class="hdr-right">🎵 Lagu Indonesia</div>
+</header>
+<main>
+  <div class="player" id="player">
+    <div class="cover-wrap">
+      <img id="coverImg" src="https://images.unsplash.com/photo-1518756131217-31eb79b20e8f?w=400&q=80" alt="cover"
+        onerror="this.src='https://picsum.photos/seed/cover/400/400'"/>
+      <div class="veil"></div>
+      <div class="disc" id="disc"></div>
+    </div>
+    <div class="meta">
+      <div class="meta-title" id="mTitle">Pilih lagu di bawah ↓</div>
+      <div class="meta-artist" id="mArtist">— Nusantara Musik —</div>
+      <span class="badge" id="mGenre">Indonesia</span>
+    </div>
+    <div class="prog-wrap" id="progWrap">
+      <div class="prog-fill" id="progFill"></div>
+      <div class="prog-dot" id="progDot"></div>
+    </div>
+    <div class="time-row"><span id="tCur">0:00</span><span id="tTot">0:00</span></div>
+    <div class="controls">
+      <button class="cbtn" id="btnShuffle" onclick="toggleShuffle()" title="Acak">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+        </svg>
+      </button>
+      <button class="cbtn" onclick="prev()" title="Sebelumnya">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="pbtn" id="pbtn" onclick="togglePlay()">
+        <svg id="pico" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="cbtn" onclick="next()" title="Berikutnya">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6h2v12h-2z"/></svg>
+      </button>
+      <button class="cbtn" id="btnRepeat" onclick="toggleRepeat()" title="Ulangi">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+          <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+        </svg>
+      </button>
+    </div>
+    <div class="vol-row">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+      <input type="range" id="vol" min="0" max="1" step="0.02" value="0.85" oninput="audio.volume=this.value"/>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM16.5 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+    </div>
+    <div class="status" id="status">Klik lagu untuk mulai memutar ▶</div>
+  </div>
+
+  <div class="plist">
+    <h2>Lagu Indonesia</h2>
+    <p class="sub">Koleksi nusantara · <span id="cnt">0</span> lagu tersedia</p>
+    <div class="song-list" id="songList"></div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<footer>Dibuat dengan ❤️ untuk <span>Musik Indonesia</span> — Nusantara Musik © 2025</footer>
+
+<!-- Audio element — crossorigin diperlukan agar bisa dimuat dari archive.org -->
+<audio id="audio" preload="none"></audio>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA LAGU — semua audio dari archive.org (The Sounds Of Indonesia)
+// Koleksi ini bebas diakses publik
+// ═══════════════════════════════════════════════════════════════
+const BASE = "https://archive.org/download/TheSoundsOfIndonesia/";
+const songs = [
+  { title:"Bengawan Solo",           artist:"Gesang Martohartono",          genre:"Keroncong",     file:"2-10%20Bengawan%20Solo.mp3",                img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Bengawan_Solo_river.jpg/480px-Bengawan_Solo_river.jpg" },
+  { title:"Rasa Sayange",            artist:"Tradisional Maluku",           genre:"Tradisional",   file:"1-03%20Rasa%20Sayange.mp3",                  img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Ambon_island%2C_Maluku_Province%2C_Indonesia.jpg/480px-Ambon_island%2C_Maluku_Province%2C_Indonesia.jpg" },
+  { title:"Bungong Jeumpa",          artist:"Tradisional Aceh",             genre:"Aceh",          file:"1-02%20Bungong%20Jeumpa.mp3",                 img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Masjid_Raya_Baiturrahman.jpg/480px-Masjid_Raya_Baiturrahman.jpg" },
+  { title:"Anging Mamiri",           artist:"Tradisional Sulawesi",         genre:"Sulawesi",      file:"1-04%20Anging%20Mamiri.mp3",                  img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Tanah_Toraja_Ke%27te_Kesu.jpg/480px-Tanah_Toraja_Ke%27te_Kesu.jpg" },
+  { title:"Keroncong Kemayoran",     artist:"Musik Keroncong",              genre:"Keroncong",     file:"1-05%20Keroncong%20Kemayoran.mp3",             img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Jakarta_night.jpg/480px-Jakarta_night.jpg" },
+  { title:"Jembatan Merah",          artist:"Tradisional Jawa Timur",       genre:"Jawa Timur",    file:"1-08%20Jembatan%20Merah.mp3",                 img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Jembatan_Merah%2C_Surabaya.jpg/480px-Jembatan_Merah%2C_Surabaya.jpg" },
+  { title:"Ampar-Ampar Pisang",      artist:"Tradisional Kalimantan",       genre:"Kalimantan",    file:"1-12%20Ampar%20Ampar%20Pisang.mp3",            img:"https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Martapura_River.jpg/480px-Martapura_River.jpg" },
+  { title:"Cublak-Cublak Suweng",    artist:"Tradisional Jawa",             genre:"Jawa",          file:"1-11%20Cublak%20Cublak%20Suweng.mp3",          img:"https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Borobudur_ship.jpg/480px-Borobudur_ship.jpg" },
+  { title:"Gending Sriwijaya",       artist:"Tradisional Palembang",        genre:"Sumatera",      file:"1-13%20Gending%20Sriwijaya.mp3",               img:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Ampera_bridge_2015.jpg/480px-Ampera_bridge_2015.jpg" },
+  { title:"Jali-Jali",               artist:"Tradisional Betawi",           genre:"Betawi",        file:"2-11%20Jali-Jali.mp3",                         img:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Ondel-ondel.jpg/480px-Ondel-ondel.jpg" },
+  { title:"Yamko Rambe Yamko",       artist:"Tradisional Papua",            genre:"Papua",         file:"2-12%20Yamko%20Rambe%20Yamko.mp3",             img:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Raja_Ampat_Islands.jpg/480px-Raja_Ampat_Islands.jpg" },
+  { title:"Ayo Mama",                artist:"Tradisional Maluku",           genre:"Maluku",        file:"2-09%20Ayo%20Mama.mp3",                        img:"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Ambon_island%2C_Maluku_Province%2C_Indonesia.jpg/480px-Ambon_island%2C_Maluku_Province%2C_Indonesia.jpg" },
+  { title:"Manuk Dadali",            artist:"Tradisional Sunda",            genre:"Sunda",         file:"2-01%20Manuk%20Dadali.mp3",                    img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Kawah_Putih%2C_West_Java.jpg/480px-Kawah_Putih%2C_West_Java.jpg" },
+  { title:"Soleram",                 artist:"Tradisional Riau",             genre:"Melayu",        file:"2-02%20Soleram.mp3",                           img:"https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Istana_Siak.jpg/480px-Istana_Siak.jpg" },
+  { title:"Kampung Nan Jauh di Mato",artist:"Tradisional Minangkabau",      genre:"Minang",        file:"2-03%20Kampuang%20Nan%20Jauh%20Di%20Mato.mp3", img:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Rumah_Gadang_Koto_Baru.jpg/480px-Rumah_Gadang_Koto_Baru.jpg" },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const audio = document.getElementById('audio');
+let cur=0, playing=false, shuffle=false, repeat=false;
+
+document.getElementById('cnt').textContent = songs.length;
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER LIST
+// ═══════════════════════════════════════════════════════════════
+function renderList() {
+  const list = document.getElementById('songList');
+  list.innerHTML='';
+  songs.forEach((s,i)=>{
+    const el=document.createElement('div');
+    el.className='sitem'+(i===cur?' active':'');
+    el.onclick=()=>load(i,true);
+    el.innerHTML=`
+      <div class="snum">${i===cur&&playing
+        ?'<div class="eq"><div class="eq-b"></div><div class="eq-b"></div><div class="eq-b"></div></div>'
+        :(i+1)}</div>
+      <img class="sthumb" src="${s.img}" alt="${s.title}"
+        onerror="this.src='https://picsum.photos/seed/${i+30}/46/46'"/>
+      <div class="sinfo">
+        <div class="stitle">${s.title}</div>
+        <div class="sartist">${s.artist}</div>
+      </div>
+      <div class="sdur">${s.genre}</div>`;
+    list.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOAD & PLAY
+// ═══════════════════════════════════════════════════════════════
+function load(idx, autoplay) {
+  cur=idx;
+  const s=songs[idx];
+  document.getElementById('mTitle').textContent=s.title;
+  document.getElementById('mArtist').textContent=s.artist;
+  document.getElementById('mGenre').textContent=s.genre;
+
+  const img=document.getElementById('coverImg');
+  img.src=s.img;
+  img.onerror=()=>{ img.src='https://picsum.photos/seed/'+(idx+50)+'/400/400'; };
+
+  resetProgress();
+  setStatus('⏳ Memuat lagu...','');
+  renderList();
+
+  // Set audio source langsung ke archive.org MP3
+  audio.src = BASE + s.file;
+  audio.volume = +document.getElementById('vol').value;
+  audio.load();
+
+  if(autoplay){
+    const p=audio.play();
+    if(p!==undefined){
+      p.then(()=>{ playing=true; updateBtn(); setStatus('▶ Sedang diputar','ok'); renderList(); })
+       .catch(e=>{ console.error(e); setStatus('⚠️ Gagal memutar — coba klik Play atau lagu lain','err'); playing=false; updateBtn(); });
+    }
+  }
+}
+
+function togglePlay(){
+  if(!audio.src||audio.src===window.location.href){ load(0,true); return; }
+  if(playing){ audio.pause(); }
+  else{
+    audio.play()
+      .then(()=>{ playing=true; updateBtn(); setStatus('▶ Sedang diputar','ok'); renderList(); })
+      .catch(e=>{ setStatus('⚠️ Gagal memutar audio','err'); });
+  }
+}
+
+function prev(){ load(shuffle?rand():(cur-1+songs.length)%songs.length, true); }
+function next(){ load(shuffle?rand():(cur+1)%songs.length, true); }
+function rand(){ let r; do{r=Math.floor(Math.random()*songs.length);}while(r===cur&&songs.length>1); return r; }
+
+function toggleShuffle(){ shuffle=!shuffle; document.getElementById('btnShuffle').classList.toggle('on',shuffle); toast(shuffle?'🔀 Acak aktif':'🔀 Acak nonaktif'); }
+function toggleRepeat(){ repeat=!repeat; audio.loop=repeat; document.getElementById('btnRepeat').classList.toggle('on',repeat); toast(repeat?'🔁 Ulangi aktif':'🔁 Ulangi nonaktif'); }
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIO EVENTS
+// ═══════════════════════════════════════════════════════════════
+audio.addEventListener('play', ()=>{ playing=true; updateBtn(); document.getElementById('player').classList.add('playing'); setStatus('▶ Sedang diputar','ok'); renderList(); });
+audio.addEventListener('pause', ()=>{ playing=false; updateBtn(); document.getElementById('player').classList.remove('playing'); setStatus('⏸ Dijeda',''); renderList(); });
+audio.addEventListener('ended', ()=>{ if(!repeat) next(); });
+audio.addEventListener('waiting', ()=>setStatus('⏳ Buffering...',''));
+audio.addEventListener('canplay', ()=>{ if(playing) setStatus('▶ Sedang diputar','ok'); });
+audio.addEventListener('loadedmetadata', ()=>{ document.getElementById('tTot').textContent=fmt(audio.duration); });
+audio.addEventListener('timeupdate', ()=>{
+  if(!audio.duration) return;
+  const p=audio.currentTime/audio.duration;
+  document.getElementById('progFill').style.width=(p*100)+'%';
+  document.getElementById('progDot').style.left=(p*100)+'%';
+  document.getElementById('tCur').textContent=fmt(audio.currentTime);
+});
+audio.addEventListener('error', (e)=>{
+  console.error('Audio error',e);
+  setStatus('⚠️ Audio tidak bisa dimuat — butuh koneksi internet','err');
+  playing=false; updateBtn(); renderList();
+});
+
+document.getElementById('progWrap').addEventListener('click', e=>{
+  const r=e.currentTarget.getBoundingClientRect();
+  const p=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  if(audio.duration) audio.currentTime=p*audio.duration;
+});
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+function updateBtn(){
+  document.getElementById('pico').innerHTML=playing
+    ?'<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
+    :'<path d="M8 5v14l11-7z"/>';
+}
+function resetProgress(){
+  document.getElementById('progFill').style.width='0%';
+  document.getElementById('progDot').style.left='0%';
+  document.getElementById('tCur').textContent='0:00';
+  document.getElementById('tTot').textContent='0:00';
+}
+function fmt(s){ s=Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function setStatus(msg,cls){
+  const el=document.getElementById('status');
+  el.textContent=msg;
+  el.className='status'+(cls?' '+cls:'');
+}
+let tt;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(tt); tt=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// INIT
+renderList();
+</script>
+</body>
+</html>
